@@ -1,4 +1,4 @@
-name: Criar e Enviar Arquivo
+name: Verificar ou Atualizar Arquivo
 
 on:
   push:
@@ -6,15 +6,45 @@ on:
       - main
 
 jobs:
-  criar_arquivo_e_enviar:
+  verificar_atualizar_arquivo:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checar código
       uses: actions/checkout@v3
 
-    - name: Criar o arquivo
-      run: echo "0123456789" > pipeteste
+    - name: Verificar ou atualizar o arquivo
+      run: |
+        FILE="pipeteste"
+        DEFAULT_VALUE="0123456789"
+        
+        # Verifica se o arquivo existe
+        if [ -f "$FILE" ]; then
+          echo "O arquivo $FILE existe."
+          
+          # Lê o conteúdo do arquivo
+          CONTENT=$(cat $FILE)
+          
+          if [ "$CONTENT" = "$DEFAULT_VALUE" ]; then
+            echo "O valor do arquivo é igual ao padrão ($DEFAULT_VALUE)."
+            
+            # Gera um número aleatório e atualiza o arquivo
+            RANDOM_VALUE=$(( RANDOM % 100000 ))
+            echo $RANDOM_VALUE > $FILE
+            echo "Valor atualizado para um número aleatório: $RANDOM_VALUE"
+          else
+            echo "O valor do arquivo é diferente do padrão ($DEFAULT_VALUE)."
+            
+            # Atualiza o arquivo para o valor padrão
+            echo $DEFAULT_VALUE > $FILE
+            echo "Valor atualizado para o padrão: $DEFAULT_VALUE"
+          fi
+        else
+          echo "O arquivo $FILE não existe. Criando com o valor padrão ($DEFAULT_VALUE)."
+          
+          # Cria o arquivo com o valor padrão
+          echo $DEFAULT_VALUE > $FILE
+        fi
 
     - name: Configurar Git
       run: |
@@ -26,5 +56,5 @@ jobs:
         GH_PAT: ${{ secrets.GH_PAT }}
       run: |
         git add pipeteste
-        git commit -m "Adicionar arquivo pipeteste"
-        git push https://$GH_PAT@github.com/reginaabarbara/pipelines.git main
+        git commit -m "Atualizar arquivo pipeteste"
+        git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/reginaabarbara/pipelines.git main
