@@ -1,0 +1,36 @@
+name: Create and Push File
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  create-and-push-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout do código do repositório
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 2. Criar o arquivo `pipeteste` com o conteúdo desejado
+      - name: Create File
+        run: echo "0123456789" > pipeteste
+
+      # 3. Configurar Git
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 4. Adicionar e commitar o arquivo
+      - name: Commit Changes
+        run: |
+          git add pipeteste
+          git commit -m "Add pipeteste file with content 0123456789"
+
+      # 5. Push das alterações para a branch main
+      - name: Push Changes
+        run: git push origin main
