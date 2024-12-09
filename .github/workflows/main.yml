@@ -1,36 +1,30 @@
-name: Create and Push File
+name: Criar e Enviar Arquivo
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  create-and-push-file:
+  criar_arquivo_e_enviar:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout do código do repositório
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - name: Checar código
+      uses: actions/checkout@v3
 
-      # 2. Criar o arquivo `pipeteste` com o conteúdo desejado
-      - name: Create File
-        run: echo "0123456789" > pipeteste
+    - name: Criar o arquivo
+      run: echo "0123456789" > pipeteste
 
-      # 3. Configurar Git
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+    - name: Configurar Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 4. Adicionar e commitar o arquivo
-      - name: Commit Changes
-        run: |
-          git add pipeteste
-          git commit -m "Add pipeteste file with content 0123456789"
-
-      # 5. Push das alterações para a branch main
-      - name: Push Changes
-        run: git push origin main
+    - name: Commitar e fazer push
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
+      run: |
+        git add pipeteste
+        git commit -m "Adicionar arquivo pipeteste"
+        git push https://$GH_PAT@github.com/reginaabarbara/pipelines.git main
