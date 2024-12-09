@@ -1,7 +1,9 @@
-name: Verificar ou Atualizar Arquivo
+name: Verificar, Atualizar e Enviar para Telegram
 
 on:
- workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   verificar_atualizar_arquivo:
@@ -12,37 +14,27 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Verificar ou atualizar o arquivo
+      id: verificar_arquivo
       run: |
         FILE="pipeteste"
         DEFAULT_VALUE="0123456789"
         
-        # Verifica se o arquivo existe
         if [ -f "$FILE" ]; then
-          echo "O arquivo $FILE existe."
-          
-          # Lê o conteúdo do arquivo
           CONTENT=$(cat $FILE)
-          
           if [ "$CONTENT" = "$DEFAULT_VALUE" ]; then
-            echo "O valor do arquivo é igual ao padrão ($DEFAULT_VALUE)."
-            
-            # Gera um número aleatório e atualiza o arquivo
             RANDOM_VALUE=$(( RANDOM % 100000 ))
             echo $RANDOM_VALUE > $FILE
-            echo "Valor atualizado para um número aleatório: $RANDOM_VALUE"
+            CONTENT=$RANDOM_VALUE
           else
-            echo "O valor do arquivo é diferente do padrão ($DEFAULT_VALUE)."
-            
-            # Atualiza o arquivo para o valor padrão
             echo $DEFAULT_VALUE > $FILE
-            echo "Valor atualizado para o padrão: $DEFAULT_VALUE"
+            CONTENT=$DEFAULT_VALUE
           fi
         else
-          echo "O arquivo $FILE não existe. Criando com o valor padrão ($DEFAULT_VALUE)."
-          
-          # Cria o arquivo com o valor padrão
           echo $DEFAULT_VALUE > $FILE
+          CONTENT=$DEFAULT_VALUE
         fi
+
+        echo "content=$CONTENT" >> $GITHUB_ENV
 
     - name: Configurar Git
       run: |
@@ -51,8 +43,18 @@ jobs:
 
     - name: Commitar e fazer push
       env:
-        GH_PAT: ${{ secrets.GH_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git add pipeteste
         git commit -m "Atualizar arquivo pipeteste"
-        git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/reginaabarbara/pipelines.git main 
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/reginaabarbara/pipelines.git main
+
+    - name: Enviar para Telegram
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        FILE_CONTENT: ${{ env.content }}
+      run: |
+        curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+          -d chat_id="$TELEGRAM_CHAT_ID" \
+          -d text="O conteúdo do arquivo pipeteste é: $FILE_CONTENT"
