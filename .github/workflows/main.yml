@@ -1,9 +1,7 @@
 name: Verificar ou Atualizar Arquivo
 
 on:
-  push:
-    branches:
-      - main
+ workflow_dispatch:
 
 jobs:
   verificar_atualizar_arquivo:
