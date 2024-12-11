@@ -1,0 +1,33 @@
+name: Password Protected Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      key_code:
+        description: 'Informe o código de validação'
+        required: true
+        type: string
+
+jobs:
+  code_validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validar código inserido
+        run: |
+          # Atribuindo o valor do segredo HOTFIX_KEY à variável VALIDATION_KEY
+          VALIDATION_KEY="${{ secrets.HOTFIX_KEY }}"
+          
+          # Verificar se o código inserido pelo usuário é igual à chave
+          if [[ "${{ github.event.inputs.key_code }}" != "$VALIDATION_KEY" ]]; then
+            echo "O código inserido está incorreto. O workflow será cancelado."
+            exit 1  # Cancela a execução caso o código não seja igual
+          else
+            echo "Código correto. Continuando o workflow."
+          fi
+          
+  exemplo:
+    runs-on: ubuntu-latest
+    needs: code_validation
+    steps:
+      - name: Receber e mostrar input do usuário
+        run: echo "Workflow pode prosseguir com sucesso"
