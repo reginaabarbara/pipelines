@@ -1,0 +1,75 @@
+name: Abordagem 2
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - stage
+    paths:
+      - libs/common/**
+
+  workflow_dispatch:
+
+jobs:
+  build-applications:
+    strategy:
+      matrix:
+        combination:
+          - "admin-portal:admin-portal:admin-portal"
+          - "authentication:authentication:authentication"
+          - "brand/read:brand-read:brand/read"
+          - "brand/sync:brand-sync:brand/sync"
+          - "brand/write:brand-write:brand/write"
+          - "campaign/read:campaign-read:campaign/read"
+          - "campaign/sync:campaign-sync:campaign/sync"
+          - "campaign/write:campaign-write:campaign/write"
+          - "completion/read:completion-read:completion/read"
+          - "completion/sync:completion-sync:completion/sync"
+          - "completion/write:completion-write:completion/write"
+          - "import/api:import-api:import/api"
+          - "integration/api:integration-api:integration/api"
+          - "integration/sync:integration-sync:integration/sync"
+          - "kpi/read:kpi-read:kpi/read"
+          - "kpi/sync:kpi-sync:kpi/sync"
+          - "message-pusher:message-pusher:message-pusher"
+          - "message:message:message"
+          - "mission/read:mission-read:mission/read"
+          - "mission/sync:mission-sync:mission/sync"
+          - "mission/write:mission-write:mission/write"
+          - "notification/read:notification-read:notification/read"
+          - "notification/sync:notification-sync:notification/sync"
+          - "notification/write:notification-write:notification/write"
+          - "payment:payment:payment"
+          - "push-notification:push-notification:push-notification"
+          - "queue/api:queue-api:queue/api"
+          - "queue/consumer:queue-consumer:queue/consumer"
+          - "queue/sync:queue-sync:queue/sync"
+          - "receipt-scan:receipt-scan:receipt-scan"
+          - "report/read:report-read:report/read"
+          - "report/sync:report-sync:report/sync"
+          - "report/write:report-write:report/write"
+          - "reward/read:reward-read:reward/read"
+          - "reward/sync:reward-sync:reward/sync"
+          - "reward/write:reward-write:reward/write"
+          - "store/read:store-read:store/read"
+          - "store/sync:store-sync:store/sync"
+          - "store/write:store-write:store/write"
+          - "user/read:user-read:user/read"
+          - "user/sync:user-sync:user/sync"
+          - "user-wallet/read:user-wallet-read:user-wallet/read"
+          - "user-wallet/sync:user-wallet-sync:user-wallet/sync"
+          - "user-wallet/write:user-wallet-write:user-wallet/write"
+          - "user/write:user-write:user/write"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print matrix combination values
+        run: |
+          # Divide a combinação da matriz em partes separadas por ':'
+          IFS=':' read -r app repository docker_args <<< "${{ matrix.combination }}"
+          
+          # Exibe as variáveis individuais
+          echo "app: $app"
+          echo "repository: reginaabarbara/app-$repository"
+          echo "docker_args: $docker_args"
