@@ -1,0 +1,24 @@
+name: Admin Portal
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - stage
+    paths:
+      - apps/admin-portal/**
+      - libs/common/**
+  workflow_dispatch:
+
+jobs:
+  execute:
+    uses: endvrtech/deployments/.github/workflows/job-deployment-v1.yaml@main
+    with:
+      app: admin-portal
+      repository: endvrio/app-admin-portal
+      docker_args: |
+        APP=admin-portal
+    secrets:
+      deployment_pat: ${{ secrets.DEPLOYMENT_PAT }}
+      dockerhub_pwd: ${{ secrets.DOCKER_PASSWORD }}
